@@ -64,6 +64,125 @@ npm start
 - import 'normalize.css' in index.js
 - SET BEFORE 'index.css'
 - replace contents of index.css
-- if any questions about normalize or specific styles
-- Coding Addict - [Default Starter Video](https://youtu.be/UDdyGNlQK5w)
-- Repo - [Default Starter Repo](https://github.com/john-smilga/default-starter)
+
+#### Landing Page
+
+- zoom level 175%
+- markdown preview extension
+- get something on the screen
+- react router and styled components right after
+- create pages directory in the source
+- for now Landing.js
+- create component (snippets extension)
+- setup basic return
+
+Landing Page
+
+- import logo.svg and main.svg
+- import Landing in App.js and render
+
+#### Styled Components
+
+- CSS in JS
+- Styled Components
+- have logic and styles in component
+- no name collisions
+- apply javascript logic
+- npm install styled-components
+- import styled from 'styled-components'
+- vscode-styled-components extension
+- colors and bugs
+- style entire react component
+- only responsible for styling
+- styles maintained in pages/components respective folder
+
+#### Logo and Images
+
+- logo built in Figma
+- [Cool Images](https://undraw.co/)
+
+#### Logo
+
+- create components folder in source
+- create Logo.js
+- move import and image logic
+- export as default
+- utilize index.js
+
+#### React Router
+
+- Version 6
+- [React Router Docs](https://reactrouter.com/docs/en/v6)
+
+```sh
+npm install history@5 react-router-dom@6
+```
+
+- import four components
+
+```js
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+```
+
+- Connect to browser's URL with BrowserRouter
+- Routes instead of Switch
+
+```js
+
+<BrowserRouter>
+    <Routes>
+      <Route path="/" element={<div>Dashboard</div>} />
+      <Route path="/register" element={<div>Register</div>} />
+      <Route path="/landing" element={<Landing />} />
+      <Route path="*" element={<div>Error</div>}>
+    </Routes>
+</BrowserRouter>
+
+```
+
+```js
+<nav>
+  <Link to='/'>Dashboard</Link>
+  <Link to='/register'>Register</Link>
+  <Link to='/landing'>Home</Link>
+</nav>
+```
+
+- go to Landing.js
+
+```js
+import { Link } from "react-router-dom";
+
+return (
+  <Link to='/register' className='btn btn-hero'>
+    Login / Register
+  </Link>
+);
+```
+
+#### Setup Pages
+
+- create Error, Register, Dashboard pages
+- basic return
+- lazy load, suspense in App.js
+- add to element={}
+- remove temp navbar
+
+#### Error Page
+
+```js
+import { Link } from "react-router-dom";
+import img from "../assets/images/not-found.svg";
+import Wrapper from "../assets/wrappers/ErrorPage";
+
+return (
+  <Wrapper className='full-page'>
+    <div>
+      <img src={img} alt='not found' />
+      <h3>text</h3>
+      <p>text</p>
+      <Link to='/'>back home</Link>
+    </div>
+  </Wrapper>
+);
+```
