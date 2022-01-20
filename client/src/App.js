@@ -1,6 +1,5 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-// import { DashboardPage, LandingPage, ErrorPage, RegisterPage } from "./pages";
 
 const DashboardPage = lazy(() =>
   import("./pages/dashboard/dashboard.component")
@@ -13,12 +12,13 @@ function App() {
   return (
     <div>
       <BrowserRouter>
-        <nav>
-          <Link to='/'>Dashboard</Link>
-          <Link to='/register'>Register</Link>
-          <Link to='/landing'>Landing</Link>
-        </nav>
         <Suspense fallback={<div>Loading...</div>}>
+          <nav>
+            <Link to='/'>Dashboard</Link>
+            <Link to='/register'>Register</Link>
+            <Link to='/landing'>Landing</Link>
+          </nav>
+
           <Routes>
             <Route exact path='/' element={<DashboardPage />} />
             <Route path='/register' element={<RegisterPage />} />
