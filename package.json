@@ -1,5 +1,21 @@
 {
+  "name": "jobbylounge",
+  "version": "1.0.0",
+  "description": "#### Track Your Job Search",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "styled-components": "^5.3.3"
+    "dotenv": "^14.2.0",
+    "express": "^4.17.2",
+    "mongoose": "^6.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }
