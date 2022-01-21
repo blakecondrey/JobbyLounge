@@ -515,13 +515,6 @@ node server
 #### ES6 vs CommonJS
 
 ```js
-CommonJS;
-
-const express = require("express");
-const app = express();
-```
-
-```js
 ES6;
 
 import express from "express";
@@ -580,7 +573,7 @@ app.listen(port, () => console.log(`Server is listening on port ${port}...`));
 
 - in the middleware create error-handler.js
 - setup function
-- accept 4 parameters, first one error
+- accept 4 parameters (error, req, res, next)
 - log error
 - return 500
 - json({msg:'there was an error'})
@@ -616,7 +609,7 @@ npm install dotenv
 npm install mongoose
 ```
 
-- create <b>db</b> folder
+- create DB folder
 - create connect.js
 - setup connectDB(url)
 - in server.js create start() function
@@ -680,14 +673,61 @@ export default router;
 - in server.js jobsRouter
 
 ```js
-app.use('/api/v1/jobs', jobsRouter)
+app.use("/api/v1/jobs", jobsRouter);
+```
 
 #### Postman
 
 - URL global var
-- JOBIFY Collection
+- JOBBYLOUNGE Collection
 - auth and jobs folders
 - setup routes
+
+#### User Model
+
+- <b>models</b> folder
+- User.js
+- setup schema
+- name, email, password, lastName, location
+- all {type:String}
+
+```js
+import mongoose from "mongoose";
+
+const UserSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "Please provide name"],
+    minLength: 3,
+    maxlength: 20,
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: [true, "Please provide email"],
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: [true, "Please provide password"],
+    minLength: 6,
+  },
+  lastName: {
+    type: String,
+    trim: true,
+    maxlength: 20,
+    default: "lastName",
+  },
+  location: {
+    type: String,
+    trim: true,
+    maxlength: 20,
+    default: "My City, My State",
+  },
+});
+
+export default mongoose.model("User", UserSchema);
+```
 
 #### Error Boundary
 
@@ -696,6 +736,8 @@ app.use('/api/v1/jobs', jobsRouter)
 #### Spinner
 
 - create HOC Spinner for loading
+
+```
 
 ```
 
