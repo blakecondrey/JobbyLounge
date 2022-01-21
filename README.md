@@ -9,8 +9,6 @@
 - cd client
 - npx create-react-app .
 - npm start (from package.json -> scripts -> "start")
-- set edtor/browser side by side
-- copy/paste assets from complete project
 
 #### Spring Cleaning
 
@@ -31,9 +29,6 @@
 #### Normalize.css and Global Styles
 
 - CSS in JS (styled-components)
-- saves times on the setup
-- less lines of css
-- speeds up the development
 - normalize.css
 - small CSS file that provides cross-browser consistency in the default styling of HTML elements.
 - [normalize docs](https://necolas.github.io/normalize.css/)
@@ -46,10 +41,6 @@
 
 #### Landing Page
 
-- zoom level 175%
-- markdown preview extension
-- get something on the screen
-- react router and styled components right after
 - create pages directory in the source
 - for now Landing.js
 - create component (snippets extension)
@@ -60,6 +51,11 @@ Landing Page
 - import logo.svg and main.svg
 - import Landing in App.js and render
 
+```js
+import main from "../../assets/images/main.svg";
+import { ReactComponent as Logo } from "../../assets/images/logo.svg";
+```
+
 #### Styled Components
 
 - CSS in JS
@@ -69,24 +65,56 @@ Landing Page
 - apply javascript logic
 - npm install styled-components
 - import styled from 'styled-components'
-- vscode-styled-components extension
-- colors and bugs
 - style entire react component
-- only responsible for styling
-- styles maintained in pages/components respective folder
+- styles maintained in respective folder of accompanying page/component
+- e.g. folder: landing | files: landing.component.js / landing.styles.js
+
+```js
+import styled from "styled-components";
+
+export const Wrapper = styled.main`
+  nav {
+    width: var(--fluid-width);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    height: var(--nav-height);
+    display: flex;
+    align-items: center;
+  }
+  .page {
+    min-height: calc(100vh - var(--nav-height));
+    display: grid;
+    align-items: center;
+    margin-top: -3rem;
+  }
+  h1 {
+    font-weight: 700;
+    span {
+      color: var(--primary-500);
+    }
+  }
+  p {
+    color: var(--grey-600);
+  }
+  .main-img {
+    display: none;
+  }
+  @media (min-width: 992px) {
+    .page {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 3rem;
+    }
+    .main-img {
+      display: block;
+    }
+  }
+`;
+```
 
 #### Logo and Images
 
 - logo built in Figma
 - [Cool Images](https://undraw.co/)
-
-#### Logo
-
-- create components folder in source
-- create Logo.js
-- move import and image logic
-- export as default
-- utilize index.js
 
 #### React Router
 
@@ -171,8 +199,6 @@ const ErrorPage = () => {
 export default ErrorPage;
 ```
 
-TO-DO:
-
 #### Register Page - Setup
 
 ```js
@@ -237,6 +263,29 @@ function Register() {
 - setup one for email and password
 - type, name, value
 
+```js
+import React from "react";
+
+const FormRow = ({ type, name, value, handleChange, labelText }) => {
+  return (
+    <div className='form-row'>
+      <label htmlFor={name} className='form-label'>
+        {labelText || name}
+      </label>
+      <input
+        type={type}
+        value={value}
+        name={name}
+        onChange={handleChange}
+        className='form-input'
+      />
+    </div>
+  );
+};
+
+export default FormRow;
+```
+
 #### Alert Component
 
 - create Alert.component.js in <b>components</b>
@@ -297,8 +346,8 @@ return (
 
 #### Global Context
 
-- in src create <b>context</b> directory
-- actions.js
+- in src create context directory
+- actions.types.js
 - reducer.js
 - appContext.js
 
@@ -325,7 +374,7 @@ const AppProvider = ({ children }) => {
     </AppContext.Provider>
   );
 };
-// make sure use
+// make sure use at bottom of file
 export const useAppContext = () => {
   return useContext(AppContext);
 };
@@ -333,7 +382,7 @@ export const useAppContext = () => {
 export { AppProvider };
 ```
 
-- index.js
+- import AppProvider in App.js
 
 ```js
 import { AppProvider } from "./context/appContext";
@@ -561,7 +610,7 @@ app.listen(port, () => console.log(`Server is listening on port ${port}...`));
 
 #### Not Found Middleware
 
-- in the root create <b>middleware</b> folder
+- in the root create middleware folder
 - not-found.js
 - setup function
 - return 404 with message 'Route does not exist'
@@ -619,7 +668,7 @@ npm install mongoose
 
 #### Auth Controller and Route Structure
 
-- create <b>controllers</b>
+- create controllers
 - authController.js
 - create async functions
 
@@ -628,7 +677,7 @@ export { register, login, updateUser };
 ```
 
 - return res.send('function name')
-- create <b>routes</b> folder
+- create routes folder
 - authRoutes.js
 - setup express router
 - import functions from authController.js
@@ -685,7 +734,7 @@ app.use("/api/v1/jobs", jobsRouter);
 
 #### User Model
 
-- <b>models</b> folder
+- create models folder
 - User.js
 - setup schema
 - name, email, password, lastName, location
