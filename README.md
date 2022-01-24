@@ -778,6 +778,91 @@ const UserSchema = new mongoose.Schema({
 export default mongoose.model("User", UserSchema);
 ```
 
+#### Validate Email
+
+```js
+validate:{
+  validator:(field)=> {return 2 > 1},
+  message:'Please provide valid email'
+  }
+```
+
+- [Validator Package](https://www.npmjs.com/package/validator)
+
+```sh
+npm install validator
+```
+
+- import in User.js
+
+#### Register User - Initial Setup
+
+- authController
+- import User model
+- setup temporary try/catch
+- await User.create(req.body)
+- if success 201 with json({user}) (temp)
+- if error 500 with json({msg:'there was an error'})
+
+```js
+const register = async (req, res, next) => {
+  try {
+    // requires registrant to provide all values -> await User.create(req.body)
+    const user = await User.create(req.body);
+    res.status(201).json({ user });
+  } catch (error) {
+    res.status(500).json({ msg: "There was an error" });
+  }
+};
+```
+
+#### Pass Error to Error Handler
+
+- next(error)
+
+```js
+const register = async (req, res, next) => {
+  try {
+    // requires registrant to provide all values -> await User.create(req.body)
+    const user = await User.create(req.body);
+    res.status(201).json({ user });
+  } catch (error) {
+    next(error);
+  }
+};
+```
+
+#### Express-Async-Errors Package
+
+- remove try/catch
+- [Express-Async-Errors](https://www.npmjs.com/package/express-async-errors)
+
+```sh
+npm install express-async-errors
+```
+
+- in server.js
+- import 'express-async-errors'
+
+- use throw Error('error') instead of next(error)
+
+#### Http Status Codes
+
+- constants for status codes
+- personal preference
+- provides consistency
+- less bugs
+- easier to read/manage
+
+- [Http Status Codes](https://www.npmjs.com/package/http-status-codes)
+
+```sh
+npm install http-status-codes
+```
+
+- import/setup in authController and error-handler
+- setup defaultError
+
 #### Error Boundary
 
 - create error boundary for routing
