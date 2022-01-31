@@ -874,6 +874,103 @@ npm install http-status-codes
 - import {BadRequestError} in authController
 - gotcha "errors/index.js
 
+```js
+class CustomAPIError extends Error {
+  constructor(message) {
+    super(message);
+  }
+}
+
+export default CustomAPIError;
+
+// -----------------------------------
+import { StatusCodes } from "http-status-codes";
+import CustomAPIError from "./custom-api.js";
+
+class BadRequestError extends CustomAPIError {
+  constructor(message) {
+    super(message);
+    this.statusCode = StatusCodes.BAD_REQUEST;
+  }
+}
+
+export default BadRequestError;
+
+// -----------------------------------
+import { StatusCodes } from "http-status-codes";
+import CustomAPIError from "./custom-api.js";
+
+class NotFoundError extends CustomAPIError {
+  constructor(message) {
+    super(message);
+    this.statusCode = StatusCodes.NOT_FOUND;
+  }
+}
+
+export default NotFoundError;
+// -----------------------------------
+import BadRequestError from "./bad-request.js";
+import NotFoundError from "./not-found.js";
+
+export { BadRequestError, NotFoundError };
+```
+
+- in auth.controller.js:
+
+```js
+import User from "../models/User.js";
+import { StatusCodes } from "http-status-codes";
+
+import { BadRequestError } from "../errors/index.js";
+
+const register = async (req, res, next) => {
+  // requires registrant to provide all values -> await User.create(req.body)
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    throw new BadRequestError("Please provide all values.");
+  }
+
+  // unique variable testing to check for email in use instead
+  // of relying on error message to check for existence
+  const userAlreadyExists = await User.findOne({ email });
+  if (userAlreadyExists) {
+    throw new BadRequestError("Email already in use.");
+  }
+
+  const user = await User.create({ name, email, password });
+  res.status(StatusCodes.OK).json({ user });
+};
+
+const login = async (req, res) => {
+  res.send("Login User");
+};
+const updateUser = async (req, res) => {
+  res.send("Update User");
+};
+
+export { register, login, updateUser };
+```
+
+#### Hash Passwords
+
+- one way street, only compare hashed values
+- [bcrypt.js](https://www.npmjs.com/package/bcryptjs)
+
+```sh
+npm install bcryptjs
+```
+
+- User Model
+- import bcrypt from 'bcryptjs'
+- await genSalt(10)
+- await hash(password , salt)
+- await compare(requestPassword , currentPassword)
+- [mongoose middleware](https://mongoosejs.com/docs/middleware.html)
+- UserSchema.pre('save',async function(){
+  "this" points to instance created by UserSchema
+  })
+
 #### Error Boundary
 
 - create error boundary for routing
