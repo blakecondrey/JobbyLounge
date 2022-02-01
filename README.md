@@ -42,14 +42,14 @@
 #### Landing Page
 
 - create pages directory in the source
-- for now Landing.js
+- for now landing.component.js
 - create component (snippets extension)
 - setup basic return
 
 Landing Page
 
 - import logo.svg and main.svg
-- import Landing in App.js and render
+- import LandingPage in App.js and render
 
 ```js
 import main from "../../assets/images/main.svg";
@@ -155,7 +155,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 </nav>
 ```
 
-- go to Landing.js
+- go to landing.component.js
 
 ```js
 import { Link } from "react-router-dom";
@@ -288,7 +288,7 @@ export default FormRow;
 
 #### Alert Component
 
-- create Alert.component.js in <b>components</b>
+- create alert.component.js in <b>components</b>
 
 ```js
 const Alert = () => {
@@ -1151,7 +1151,7 @@ const registerUser = async (currentUser) => {
 };
 ```
 
-- import in Register.js
+- import in register.component.js
 
 ```js
 register.component.js;
@@ -1313,6 +1313,8 @@ const initialState = {
   jobLocation: userLocation || "",
 };
 ```
+
+#### TO-DO
 
 #### Error Boundary
 
