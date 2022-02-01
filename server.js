@@ -18,7 +18,6 @@ import notFoundMiddleware from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 
 app.use(express.json());
-
 app.get("/", (req, res) => {
   res.send("Welcome!");
 });

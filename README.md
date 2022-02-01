@@ -967,9 +967,146 @@ npm install bcryptjs
 - await hash(password , salt)
 - await compare(requestPassword , currentPassword)
 - [mongoose middleware](https://mongoosejs.com/docs/middleware.html)
-- UserSchema.pre('save',async function(){
-  "this" points to instance created by UserSchema
-  })
+
+```js
+// "pre" middlewares are executed prior to saving information to db
+// utilizing pre and bcrypt allows us to hash password prior to db save
+// "this" points to instance created by UserSchema
+UserSchema.pre("save", async function () {
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+```
+
+#### Mongoose - Custom Instance Methods
+
+[Custom Instance Methods](https://mongoosejs.com/docs/guide.html#methods)
+
+- UserSchema.methods.createJWT = function(){console.log(this)}
+- register controller
+- right after User.create()
+- invoke user.createJWT()
+
+- in User.js
+
+```js
+UserSchema.methods.createJWT = function () {
+  console.log(this);
+};
+```
+
+- in auth.controller
+
+```js
+  const user = await User.create({ name, email, password });
+  user.createJWT(); //HERE IS WHAT WAS ADDED
+  res.status(StatusCodes.OK).json({ user });
+};;
+```
+
+#### JWT
+
+- token
+- [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
+
+```sh
+npm install jsonwebtoken
+```
+
+- User Model
+- import jwt from 'jsonwebtoken'
+- jwt.sign(payload,secret,options)
+- createJWT
+
+-- User.js
+
+```js
+UserSchema.methods.createJWT = function () {
+  return jwt.sign({ userId: this._id }, "jwtSecret", { expiresIn: "1d" });
+};
+```
+
+in auth.controller register function
+
+```js
+const user = await User.create({ name, email, password });
+const token = user.createJWT();
+res.status(StatusCodes.OK).json({ user, token });
+```
+
+```js
+return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, {
+  expiresIn: process.env.JWT_LIFETIME,
+});
+```
+
+#### JWT_SECRET and JWT_LIFETIME
+
+- [Keys Generator](https://www.allkeysgenerator.com/)
+- RESTART SERVER!!!!
+- add JWT_SECRET and JWT_LIFETIME vars too .env
+- update createJWT function
+
+```js
+UserSchema.methods.createJWT = function () {
+  return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_LIFETIME,
+  });
+};
+```
+
+#### Complete Register
+
+- password : {select:false}
+- complete response
+
+```js
+password: {
+  type: String,
+  required: [true, "Please provide password"],
+  minLength: 6,
+  select: false,
+}
+```
+
+```js
+const token = user.createJWT();
+res.status(StatusCodes.OK).json({
+  user: {
+    email: user.email,
+    lastname: user.lastName,
+    location: user.location,
+    name: user.name,
+  },
+  token,
+  location: user.location,
+});
+```
+
+#### Concurrently
+
+- front-end and backend (server)
+- run separate terminals
+- [concurrently](https://www.npmjs.com/package/concurrently)
+
+```sh
+npm install concurrently --save-dev
+
+```
+
+- package.json
+
+```js
+// --kill-others switch, all commands are killed if one dies
+// cd client && npm start
+// escape quotes
+
+  "scripts": {
+    "client": "cd client && npm start",
+    "server": "nodemon server --ignore client",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \" npm run client\""
+  },
+```
 
 #### Error Boundary
 
