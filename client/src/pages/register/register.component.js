@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { ReactComponent as Logo } from "../../assets/images/logo.svg";
 import RegisterWrapper from "./register.styles";
 import FormRow from "../../components/formrow.component";
@@ -13,9 +15,11 @@ const initialState = {
 };
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
   const [values, setValues] = useState(initialState);
   // global state and useNavigate
-  const { isLoading, showAlert, displayAlert } = useAppContext();
+  const { user, isLoading, showAlert, displayAlert, registerUser } =
+    useAppContext();
 
   const toggler = () => {
     setValues({ ...values, isMember: !values.isMember });
@@ -32,8 +36,21 @@ const RegisterPage = () => {
       displayAlert();
       return;
     }
-    console.log(values);
+    const currentUser = { name, email, password };
+    if (isMember) {
+      console.log("already a member");
+    } else {
+      registerUser(currentUser);
+    }
   };
+
+  useEffect(() => {
+    if (user) {
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
+    }
+  }, [user, navigate]);
 
   return (
     <RegisterWrapper className='full-page'>
@@ -63,7 +80,7 @@ const RegisterPage = () => {
           value={values.password}
           handleChange={handleChange}
         />
-        <button type='submit' className='btn btn-block'>
+        <button type='submit' className='btn btn-block' disabled={isLoading}>
           Submit
         </button>
         <p>

@@ -1108,6 +1108,212 @@ npm install concurrently --save-dev
   },
 ```
 
+#### Cors Error
+
+[Cors Error](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+
+- two fixes (cors package and proxy)
+
+#### Proxy (Implemented Fix)
+
+- access from anywhere
+- don't want to use full url
+
+[cra proxy](https://create-react-app.dev/docs/proxying-api-requests-in-development/)
+
+```js
+// in package.json / client
+"proxy":"http://localhost:5000"
+```
+
+- my preference to remove trailing slash /
+- restart app
+
+#### Register User - Setup
+
+```js
+appContext.js;
+
+const initialState = {
+  user: null,
+  token: null,
+  userLocation: "",
+};
+```
+
+- actions.js REGISTER_USER_BEGIN,SUCCESS,ERROR
+- import reducer,appContext
+
+```js
+appContext.js;
+const registerUser = async (currentUser) => {
+  console.log(currentUser);
+};
+```
+
+- import in Register.js
+
+```js
+register.component.js;
+
+const currentUser = { name, email, password };
+if (isMember) {
+  console.log("already a member");
+} else {
+  registerUser(currentUser);
+}
+
+return (
+  <button type='submit' className='btn btn-block' disabled={isLoading}>
+    submit
+  </button>
+);
+```
+
+#### Axios
+
+- [axios docs](https://axios-http.com/docs/intro)
+- stop app
+- cd client
+
+```sh
+npm install axios
+```
+
+- cd ..
+- restart app
+
+#### Register User - Complete
+
+```js
+appContext.js;
+
+import axios from "axios";
+
+const registerUser = async (currentUser) => {
+  dispatch({ type: ActionTypes.REGISTER_USER_BEGIN });
+  try {
+    const response = await axios.post("/api/v1/auth/register", currentUser);
+    console.log(response);
+    const { user, token, location } = response.data;
+    dispatch({
+      type: ActionTypes.REGISTER_USER_SUCCESS,
+      payload: {
+        user,
+        token,
+        location,
+      },
+    });
+
+    // will add later
+    // addUserToLocalStorage({
+    //   user,
+    //   token,
+    //   location,
+    // })
+  } catch (error) {
+    console.log(error.response);
+    dispatch({
+      type: ActionTypes.REGISTER_USER_ERROR,
+      payload: { msg: error.response.data.msg },
+    });
+  }
+  clearAlert();
+};
+```
+
+```js
+reducer.js;
+// ... switch ...
+    case ActionTypes.REGISTER_USER_BEGIN:
+      return { ...state, isLoading: true };
+    case ActionTypes.REGISTER_USER_SUCCESS:
+      return {
+        ...state,
+        user: action.payload.user,
+        token: action.payload.token,
+        userLocation: action.payload.location,
+        jobLocation: action.payload.location,
+        isLoading: false,
+        showAlert: true,
+        alertType: "success",
+        alertText: "User Created. Redirecting...",
+      };
+    case ActionTypes.REGISTER_USER_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+    default:
+      return new Error(`No Such Action :${action.type}`);
+```
+
+#### Navigate To Dashboard
+
+in register.component.js
+
+```js
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+const Register = () => {
+  const { user } = useAppContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // callback function
+    if (user) {
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
+    }
+    // dependency array
+    // invoked on initial render
+  }, [user, navigate]);
+};
+```
+
+#### Local Storage
+
+```js
+appContext.js;
+const addUserToLocalStorage = ({ user, token, location }) => {
+  localStorage.setItem("user", JSON.stringify(user));
+  localStorage.setItem("token", token);
+  localStorage.setItem("location", location);
+};
+
+const removeUserFromLocalStorage = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("location");
+};
+
+const registerUser = async (currentUser) => {
+  // in try block
+  addUserToLocalStorage({
+    user,
+    token,
+    location,
+  });
+};
+
+// set as default
+const user = localStorage.getItem("user");
+const token = localStorage.getItem("token");
+const userLocation = localStorage.getItem("location");
+
+const initialState = {
+  user: user ? JSON.parse(user) : null,
+  token: token,
+  userLocation: userLocation || "",
+  jobLocation: userLocation || "",
+};
+```
+
 #### Error Boundary
 
 - create error boundary for routing
