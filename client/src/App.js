@@ -4,7 +4,9 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 const DashboardPage = lazy(() =>
   import("./pages/dashboard/dashboard.component")
 );
-const RegisterPage = lazy(() => import("./pages/register/register.component"));
+const RegisterAndLoginPage = lazy(() =>
+  import("./pages/register/register-and-login.component")
+);
 const LandingPage = lazy(() => import("./pages/landing/landing.component"));
 const ErrorPage = lazy(() => import("./pages/error/error.component"));
 
@@ -21,7 +23,7 @@ function App() {
 
           <Routes>
             <Route exact path='/' element={<DashboardPage />} />
-            <Route path='/register' element={<RegisterPage />} />
+            <Route path='/register' element={<RegisterAndLoginPage />} />
             <Route path='/landing' element={<LandingPage />} />
             <Route path='*' element={<ErrorPage />} />
           </Routes>

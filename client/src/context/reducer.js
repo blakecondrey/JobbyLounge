@@ -16,21 +16,24 @@ const reducer = (state, action) => {
         alertType: "",
         alertText: "",
       };
-    case ActionTypes.REGISTER_USER_BEGIN:
-      return { ...state, isLoading: true };
-    case ActionTypes.REGISTER_USER_SUCCESS:
+    case ActionTypes.SETUP_USER_START:
       return {
         ...state,
+        isLoading: true,
+      };
+    case ActionTypes.SETUP_USER_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
         user: action.payload.user,
         token: action.payload.token,
         userLocation: action.payload.location,
         jobLocation: action.payload.location,
-        isLoading: false,
         showAlert: true,
         alertType: "success",
-        alertText: "User Created. Redirecting...",
+        alertText: action.payload.alertText,
       };
-    case ActionTypes.REGISTER_USER_ERROR:
+    case ActionTypes.SETUP_USER_ERROR:
       return {
         ...state,
         isLoading: false,

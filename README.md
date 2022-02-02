@@ -1387,12 +1387,183 @@ const login = async (req, res) => {
 };
 ```
 
-- test in Postman
+- test in Postman:
   - Login User
   - select "raw"
   - change "Text" to "JSON"
   - input JSON of email and password and SEND
   - res should return user object body without password
+
+#### Login User - Setup
+
+- actions.types.js LOGIN_USER_BEGIN,SUCCESS,ERROR
+- import reducer,appContext
+
+```js
+appContext.js;
+const loginUser = async (currentUser) => {
+  console.log(currentUser);
+};
+```
+
+- import in register.component.js
+
+```js
+register.component.js;
+
+if (isMember) {
+  loginUser(currentUser);
+} else {
+  registerUser(currentUser);
+}
+```
+
+#### Login User - Complete
+
+```js
+appContext.js;
+const loginUser = async (currentUser) => {
+  dispatch({ type: LOGIN_USER_BEGIN });
+  try {
+    const { data } = await axios.post("/api/v1/auth/login", currentUser);
+    const { user, token, location } = data;
+
+    dispatch({
+      type: LOGIN_USER_SUCCESS,
+      payload: { user, token, location },
+    });
+
+    addUserToLocalStorage({ user, token, location });
+  } catch (error) {
+    dispatch({
+      type: LOGIN_USER_ERROR,
+      payload: { msg: error.response.data.msg },
+    });
+  }
+  clearAlert();
+};
+```
+
+```js
+reducer.js
+
+    case ActionTypes.LOGIN_USER_START:
+      return {
+        ...state,
+        isLoading: true,
+      }
+    case ActionTypes.LOGIN_USER_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        user: action.payload.user,
+        token: action.payload.token,
+        userLocation: action.payload.location,
+        jobLocation: action.payload.location,
+        showAlert: true,
+        alertType: "success",
+        alertText: "Login Successful. Redirecting..."
+      }
+    case ActionTypes.LOGIN_USER_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      }
+```
+
+#### Refactor
+
+- login and register have almost identical functionality
+- condense for DRY
+
+```js
+actions.types.js
+  SETUP_USER_START: "SETUP_USER_START",
+  SETUP_USER_SUCCESS: "SETUP_USER_SUCCESS",
+  SETUP_USER_ERROR: "SETUP_USER_ERROR",
+```
+
+```js
+appContext.js;
+
+const setupUser = async ({ currentUser, endPoint, alertText }) => {
+  dispatch({ type: SETUP_USER_BEGIN });
+  try {
+    const { data } = await axios.post(`/api/v1/auth/${endPoint}`, currentUser);
+
+    const { user, token, location } = data;
+    dispatch({
+      type: SETUP_USER_SUCCESS,
+      payload: { user, token, location, alertText },
+    });
+    addUserToLocalStorage({ user, token, location });
+  } catch (error) {
+    dispatch({
+      type: SETUP_USER_ERROR,
+      payload: { msg: error.response.data.msg },
+    });
+  }
+  clearAlert();
+};
+```
+
+```js
+reducer.js;
+    case ActionTypes.SETUP_USER_START:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case ActionTypes.SETUP_USER_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        user: action.payload.user,
+        token: action.payload.token,
+        userLocation: action.payload.location,
+        jobLocation: action.payload.location,
+        showAlert: true,
+        alertType: "success",
+        alertText: action.payload.alertText,
+      };
+    case ActionTypes.SETUP_USER_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+```
+
+```js
+register.component.js;
+const onSubmit = (e) => {
+  e.preventDefault();
+  const { name, email, password, isMember } = values;
+  if (!email || !password || (!isMember && !name)) {
+    displayAlert();
+    return;
+  }
+  const currentUser = { name, email, password };
+  if (isMember) {
+    setupUser({
+      currentUser,
+      endPoint: "login",
+      alertText: "Login Successful. Redirecting...",
+    });
+  } else {
+    setupUser({
+      currentUser,
+      endPoint: "/register",
+      alertText: "User Created. Redirecting...",
+    });
+  }
+};
+```
 
 #### TO-DO
 
