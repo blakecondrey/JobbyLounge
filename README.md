@@ -1314,6 +1314,86 @@ const initialState = {
 };
 ```
 
+#### Morgan Package
+
+- http logger middleware for node.js
+- [morgan docs](https://www.npmjs.com/package/morgan)
+
+```sh
+npm install morgan
+```
+
+```js
+import morgan from "morgan";
+
+if (process.env.NODE_ENV !== "production") {
+  app.use(morgan("dev"));
+}
+```
+
+#### UnauthenticatedError
+
+- unauthenticated.js in errors
+- import/export
+
+```js
+import { StatusCodes } from "http-status-codes";
+import CustomAPIError from "./custom-api.js";
+
+class UnauthenticatedError extends CustomAPIError {
+  constructor(message) {
+    super(message);
+    this.statusCode = StatusCodes.UNAUTHORIZED;
+  }
+}
+```
+
+#### Compare Password
+
+```js
+User.js in models;
+
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  return isMatch;
+};
+```
+
+```js
+auth.controller.js;
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    throw new BadRequestError("Please provide all values.");
+  }
+  // password is currently hidden using "select: false"
+  // override select: false with ".select("+password") to compare
+  // password in isPasswordCorrect await function
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user) {
+    throw new UnauthenticatedError("Invalid Credentials.");
+  }
+  const isPasswordCorrect = await user.comparePassword(password);
+  if (!isPasswordCorrect) {
+    throw new UnauthenticatedError("Invalid Credentials.");
+  }
+  // recreate JWT
+  const token = user.createJWT();
+  // programmatically set visible and hashed password to undefined
+  user.password = undefined;
+  // set status to json excluding undefined password
+  res.status(StatusCodes.OK).json({ user, token, location: user.location });
+};
+```
+
+- test in Postman
+  - Login User
+  - select "raw"
+  - change "Text" to "JSON"
+  - input JSON of email and password and SEND
+  - res should return user object body without password
+
 #### TO-DO
 
 #### Error Boundary

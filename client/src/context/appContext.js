@@ -55,7 +55,7 @@ const AppProvider = ({ children }) => {
     dispatch({ type: ActionTypes.REGISTER_USER_BEGIN });
     try {
       const response = await axios.post("/api/v1/auth/register", currentUser);
-      // console.log(response);
+      // console.log(response.data);
       const { user, token, location } = response.data;
       dispatch({
         type: ActionTypes.REGISTER_USER_SUCCESS,
