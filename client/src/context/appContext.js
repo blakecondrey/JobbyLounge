@@ -21,6 +21,7 @@ const initialState = {
   token: token,
   userLocation: userLocation || "",
   jobLocation: userLocation || "",
+  showSidebar: false,
 };
 
 const AppContext = React.createContext();
@@ -37,6 +38,10 @@ const AppProvider = ({ children }) => {
     setTimeout(() => {
       dispatch({ type: ActionTypes.CLEAR_ALERT });
     }, 3000);
+  };
+
+  const toggleSidebar = () => {
+    dispatch({ type: ActionTypes.TOGGLE_SIDEBAR });
   };
 
   const addUserToLocalStorage = ({ user, token, location }) => {
@@ -75,8 +80,15 @@ const AppProvider = ({ children }) => {
     clearAlert();
   };
 
+  const logoutUser = () => {
+    dispatch({ type: ActionTypes.LOGOUT_USER });
+    removeUserFromLocalStorage();
+  };
+
   return (
-    <AppContext.Provider value={{ ...state, displayAlert, setupUser }}>
+    <AppContext.Provider
+      value={{ ...state, displayAlert, setupUser, toggleSidebar, logoutUser }}
+    >
       {children}
     </AppContext.Provider>
   );

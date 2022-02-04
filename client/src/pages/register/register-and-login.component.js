@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import { ReactComponent as Logo } from "../../assets/images/logo.svg";
 import RegisterWrapper from "./register.styles";
-import FormRow from "../../components/formrow.component";
-import Alert from "../../components/alert.component";
+import FormRow from "../../components/form-row/formrow.component";
+import Alert from "../../components//alert/alert.component";
 import { useAppContext } from "../../context/appContext";
 
 const initialState = {
