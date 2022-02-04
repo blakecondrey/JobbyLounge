@@ -1608,7 +1608,7 @@ App.js
 ```
 
 ```js
-SharedLayout.js;
+shared - layout.component.js;
 
 import { Outlet, Link } from "react-router-dom";
 import Wrapper from "../../assets/wrappers/SharedLayout";
@@ -1636,7 +1636,7 @@ App.js
 
 #### Protected Route
 
-- create ProtectedRoute.js in pages
+- create protected-route.component.js in pages
 - import/export
 - wrap SharedLayout in App.js
 
@@ -1652,7 +1652,7 @@ App.js
 ```
 
 ```js
-ProtectedRoute.js;
+protected - route.component.js;
 
 import { Navigate } from "react-router-dom";
 import { useAppContext } from "../context/appContext";
@@ -1673,7 +1673,7 @@ const ProtectedRoute = ({ children }) => {
 - import/export
 
 ```js
-SharedLayout.js;
+shared - layout.component.js;
 
 import { Outlet } from "react-router-dom";
 import { Navbar, SmallSidebar, BigSidebar } from "../../components";
@@ -1712,7 +1712,7 @@ npm install react-icons
 ```
 
 ```js
-Navbar.js;
+navbar.component.js;
 
 import React from "react";
 import NavbarContainer from "./navbar.styles";
@@ -1733,7 +1733,7 @@ export default Navbar;
 #### Navbar Setup
 
 ```js
-Navbar.js;
+navbar.component.js;
 
 import { useState } from "react";
 import { FaAlignLeft, FaUserCircle, FaCaretDown } from "react-icons/fa";
@@ -1819,7 +1819,7 @@ case ActionTypes.TOGGLE_SIDEBAR:
 ```
 
 ```js
-Navbar.js;
+navbar.component.js;
 const Navbar = () => {
   const { toggleSidebar } = useAppContext();
 
@@ -1844,7 +1844,7 @@ return (
 #### Toggle Dropdown
 
 ```js
-Navbar.js
+navbar.component.js;
 
 const [showLogout, setShowLogout] = useState(false)
 
@@ -1866,7 +1866,7 @@ const [showLogout, setShowLogout] = useState(false)
 #### Logout User
 
 ```js
-actions.js;
+actions.types.js;
 
 export const ActionTypes = {
   DISPLAY_ALERT: "SHOW_ALERT",
@@ -1914,7 +1914,7 @@ case ActionTypes.LOGOUT_USER:
 ```
 
 ```js
-Navbar.js;
+navbar.component.js;
 
 const { user, logoutUser, toggleSidebar } = useAppContext();
 
@@ -1932,6 +1932,247 @@ return (
     </div>
   </div>
 );
+```
+
+#### Setup Links
+
+- create <b>utils</b>in the <b>src</b>
+- setup links.js
+
+```js
+import { IoBarChartSharp } from "react-icons/io5";
+import { MdQueryStats } from "react-icons/md";
+import { FaWpforms } from "react-icons/fa";
+import { ImProfile } from "react-icons/im";
+
+const links = [
+  {
+    id: 1,
+    text: "stats",
+    path: "/",
+    icon: <IoBarChartSharp />,
+  },
+  {
+    id: 2,
+    text: "all jobs",
+    path: "all-jobs",
+    icon: <MdQueryStats />,
+  },
+  {
+    id: 3,
+    text: "add job",
+    path: "add-job",
+    icon: <FaWpforms />,
+  },
+  {
+    id: 4,
+    text: "profile",
+    path: "profile",
+    icon: <ImProfile />,
+  },
+];
+
+export default links;
+```
+
+#### Small Sidebar - Setup
+
+```js
+small - sidebar.component.js;
+
+import Wrapper from "../assets/wrappers/SmallSidebar";
+import { FaTimes } from "react-icons/fa";
+import { useAppContext } from "../context/appContext";
+import links from "../utils/links";
+import { NavLink } from "react-router-dom";
+import Logo from "./Logo";
+
+export const SmallSidebar = () => {
+  return (
+    <Wrapper>
+      <div className='sidebar-container show-sidebar'>
+        <div className='content'>
+          <button className='close-btn' onClick={() => console.log("toggle")}>
+            <FaTimes />
+          </button>
+          <header>
+            <Logo />
+          </header>
+          <div className='nav-links'>nav links</div>
+        </div>
+      </div>
+    </Wrapper>
+  );
+};
+
+export default SmallSidebar;
+```
+
+#### Small Sidebar - Toggle
+
+```js
+small - sidebar.component.js;
+
+const { showSidebar, toggleSidebar } = useAppContext();
+```
+
+```js
+small - sidebar.component.js;
+
+return (
+  <div
+    className={
+      showSidebar ? "sidebar-container show-sidebar" : "sidebar-container"
+    }
+  ></div>
+);
+```
+
+```js
+SmallSidebar.js;
+
+return (
+  <button className='close-btn' onClick={toggleSidebar}>
+    <FaTimes />
+  </button>
+);
+```
+
+#### Small Sidebar - Nav Links
+
+```js
+small - sidebar.component.js;
+
+import { NavLink } from "react-router-dom";
+
+return (
+  <div className='nav-links'>
+    {links.map((link) => {
+      const { text, path, id, icon } = link;
+
+      return (
+        <NavLink
+          to={path}
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+          key={id}
+          onClick={toggleSidebar}
+        >
+          <span className='icon'>{icon}</span>
+          {text}
+        </NavLink>
+      );
+    })}
+  </div>
+);
+```
+
+#### Nav Links Component
+
+- in <b>components</b> create NavLinks.js
+- styles still set from Wrapper
+- also can setup in links.js, preference
+
+```js
+import { NavLink } from "react-router-dom";
+import links from "../utils/links";
+
+const NavLinks = ({ toggleSidebar }) => {
+  return (
+    <div className='nav-links'>
+      {links.map((link) => {
+        const { text, path, id, icon } = link;
+
+        return (
+          <NavLink
+            to={path}
+            key={id}
+            onClick={toggleSidebar}
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+          >
+            <span className='icon'>{icon}</span>
+            {text}
+          </NavLink>
+        );
+      })}
+    </div>
+  );
+};
+
+export default NavLinks;
+```
+
+```js
+sidebar.component.js;
+import React from "react";
+import SmallSidebarContainer from "./small-sidebar.styles";
+import { useAppContext } from "../../context/appContext";
+import NavLinks from "../nav-links/nav-links.component";
+
+import Logo from "../logo/logo.component";
+import { FaTimes } from "react-icons/fa";
+
+const SmallSidebar = () => {
+  const { showSidebar, toggleSidebar } = useAppContext();
+
+  return (
+    <SmallSidebarContainer>
+      <div
+        className={
+          showSidebar ? "sidebar-container show-sidebar" : "sidebar-container"
+        }
+      >
+        <div className='content'>
+          <button type='button' className='close-btn' onClick={toggleSidebar}>
+            <FaTimes />
+          </button>
+          <header>
+            <Logo />
+          </header>
+          <NavLinks toggleSidebar={toggleSidebar} />
+        </div>
+      </div>
+    </SmallSidebarContainer>
+  );
+};
+
+export default SmallSidebar;
+```
+
+#### Big Sidebar
+
+```js
+big - sidebar.component.js;
+import React from "react";
+import { useAppContext } from "../../context/appContext";
+import Logo from "../logo/logo.component";
+import NavLinks from "../nav-links/nav-links.component";
+import BigSidebarContainer from "./big-sidebar.styles";
+
+const BidSidebar = () => {
+  const { showSidebar } = useAppContext();
+  return (
+    <BigSidebarContainer>
+      <div
+        className={
+          showSidebar ? "sidebar-container" : "sidebar-container show-sidebar"
+        }
+      >
+        <div className='content'>
+          <header>
+            <Logo />
+          </header>
+          <NavLinks />
+        </div>
+      </div>
+    </BigSidebarContainer>
+  );
+};
+
+export default BidSidebar;
 ```
 
 #### TO-DO
