@@ -3,8 +3,10 @@ const router = express.Router();
 
 import { register, login, updateUser } from "../controllers/auth.controller.js";
 
+import authenticateUser from "../middleware/auth.js";
+
 router.route("/register").post(register);
 router.route("/login").post(login);
-router.route("/update_user").patch(updateUser);
+router.route("/update_user").patch(authenticateUser, updateUser);
 
 export default router;

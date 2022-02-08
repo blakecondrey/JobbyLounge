@@ -2175,6 +2175,60 @@ const BidSidebar = () => {
 export default BidSidebar;
 ```
 
+#### Authenticate User Setup
+
+- create auth.js in <b>middleware</b>
+
+```js
+const auth = async (req, res, next) => {
+  console.log("authenticate user");
+  next();
+};
+
+export default auth;
+```
+
+```js
+authRoutes.js;
+
+import authenticateUser from "../middleware/auth.js";
+
+router.route("/updateUser").patch(authenticateUser, updateUser);
+```
+
+```js
+server.js;
+
+import authenticateUser from "./middleware/auth.js";
+app.use("/api/v1/jobs", authenticateUser, jobsRouter);
+```
+
+- Test in Postman -> Update User, Jobs -> get all jobs
+- cponsole shjould return 'authenticate user' from console.log call in middleware/auth.js
+
+#### Auth - Bearer Schema
+
+```js
+Postman
+
+Headers
+
+Authorization: Bearer <token>
+
+```
+
+```js
+auth.js;
+
+const auth = async (req, res, next) => {
+  const headers = req.headers;
+  const authHeader = req.headers.authorization;
+  console.log(headers);
+  console.log(authHeader);
+  next();
+};
+```
+
 #### TO-DO
 
 #### Error Boundary
