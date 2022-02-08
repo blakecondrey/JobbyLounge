@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import ProtectedRoute from "./pages/protected-route.component";
+import Spinner from "./components/spinner/spinner.component";
 
 const RegisterAndLoginPage = lazy(() =>
   import("./pages/register/register-and-login.component")
