@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ReactComponent as Logo } from "../../assets/images/logo.svg";
+// import { ReactComponent as Logo } from "../../assets/images/logo.svg";
 import RegisterWrapper from "./register.styles";
 import FormRow from "../../components/form-row/formrow.component";
 import Alert from "../../components//alert/alert.component";
@@ -63,7 +63,7 @@ const RegisterAndLoginPage = () => {
   return (
     <RegisterWrapper className='full-page'>
       <form className='form' onSubmit={onSubmit}>
-        <Logo />
+        {/* <Logo /> */}
         <h3>{values.isMember ? "Login" : "Register"}</h3>
         {showAlert && <Alert />}
         {/* name input */}

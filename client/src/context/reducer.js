@@ -55,6 +55,31 @@ const reducer = (state, action) => {
         userLocation: null,
         jobLocation: null,
       };
+    case ActionTypes.UPDATE_USER_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case ActionTypes.UPDATE_USER_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        token: action.payload.token,
+        user: action.payload.user,
+        userLocation: action.payload.location,
+        jobLocation: action.payload.location,
+        showAlert: true,
+        alertType: "success",
+        alertText: "User Profile Updated",
+      };
+    case ActionTypes.UPDATE_USER_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
     default:
       return new Error(`No Such Action :${action.type}`);
   }

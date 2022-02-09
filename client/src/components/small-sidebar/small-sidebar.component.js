@@ -3,7 +3,7 @@ import SmallSidebarContainer from "./small-sidebar.styles";
 import { useAppContext } from "../../context/appContext";
 import NavLinks from "../nav-links/nav-links.component";
 
-import Logo from "../logo/logo.component";
+// import Logo from "../logo/logo.component";
 import { FaTimes } from "react-icons/fa";
 
 const SmallSidebar = () => {
@@ -20,9 +20,7 @@ const SmallSidebar = () => {
           <button type='button' className='close-btn' onClick={toggleSidebar}>
             <FaTimes />
           </button>
-          <header>
-            <Logo />
-          </header>
+          <header>{/* <Logo /> */}</header>
           <NavLinks toggleSidebar={toggleSidebar} />
         </div>
       </div>

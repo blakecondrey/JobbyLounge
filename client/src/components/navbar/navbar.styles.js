@@ -63,7 +63,6 @@ const NavbarContainer = styled.nav`
     cursor: pointer;
   }
   .logo-text {
-    display: none;
     margin: 0;
   }
   @media (min-width: 992px) {

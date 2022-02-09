@@ -43,6 +43,7 @@ const UserSchema = new mongoose.Schema({
 // "pre" middlewares are executed prior to saving information to db
 // utilizing pre and bcrypt allows us to hash password prior to db save
 UserSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });

@@ -2229,6 +2229,369 @@ const auth = async (req, res, next) => {
 };
 ```
 
+#### Postman - Set Token Programmatically
+
+- register and login routes
+- Tests
+
+```js
+const jsonData = pm.response.json();
+pm.globals.set("token", jsonData.token);
+
+Type: Bearer;
+
+Token: {
+  {
+    token;
+  }
+}
+```
+
+#### Unauthenticated Error
+
+```js
+auth.js;
+
+import { UnAuthenticatedError } from "../errors/index.js";
+
+const auth = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    // why, well is it 400 or 404?
+    // actually 401
+    throw new UnAuthenticatedError("Authentication Invalid");
+  }
+
+  next();
+};
+```
+
+#### Auth Middleware
+
+```js
+auth.js;
+import jwt from "jsonwebtoken";
+import { UnauthenticatedError } from "../errors/index.js";
+
+const auth = async (req, res, next) => {
+  // check header
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer")) {
+    throw new UnauthenticatedError("Authentication Invalid");
+  }
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    // log payload
+    // attach user req object
+    // req.user = payload
+    req.user = { userId: payload.userId };
+    next();
+  } catch (error) {
+    throw new UnauthenticatedError("Authentication Invalid");
+  }
+};
+
+export default auth;
+```
+
+#### Update User
+
+- in Postman:
+- ensure Authorization tab -> Type -> Bearer token is selected for use
+
+```js
+auth.controller.js;
+const updateUser = async (req, res) => {
+  const { email, name, lastName, location } = req.body;
+  if (!email || !name || !lastName || !location) {
+    throw new BadRequestError("Please provide all values.");
+  }
+
+  const user = await User.findOne({ _id: req.user.userId });
+  console.log(req.user);
+
+  user.email = email;
+  user.name = name;
+  user.lastName = lastName;
+  user.location = location;
+
+  // await User.findOneAndUpdate would avoid the errors, however, this
+  // is to showcase potential errors that could occur with password hashing
+  // and salting as it currently contains { password: { select: false} }
+  await user.save();
+
+  const token = user.createJWT();
+  res.status(StatusCodes.OK).json({
+    user,
+    token,
+    location: user.location,
+  });
+};
+```
+
+#### Modified Paths
+
+- user.save() vs User.findOneAndUpdate
+
+- Work-around ->
+
+```js
+User.js;
+// "pre" middlewares are executed prior to saving information to db
+// utilizing pre and bcrypt allows us to hash password prior to db save
+UserSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+```
+
+#### Profile Page
+
+```js
+appContext.js
+
+const updateUser = async (currentUser) => {
+  console.log(currentUser)
+}
+
+value={{updateUser}}
+```
+
+```js
+profile.component.js;
+
+import React, { useState } from "react";
+import { useAppContext } from "../../context/appContext";
+import FormRow from "../../components/form-row/formrow.component";
+import Alert from "../../components/alert/alert.component";
+import DashboardFormContainer from "./dashboard-form.styles";
+
+const Profile = () => {
+  const { user, showAlert, displayAlert, updateUser, isLoading } =
+    useAppContext();
+  const [name, setName] = useState(user?.name);
+  const [email, setEmail] = useState(user?.email);
+  const [lastName, setLastName] = useState(user?.lastName);
+  const [location, setLocation] = useState(user?.location);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name || !email || !lastName || !location) {
+      displayAlert();
+      return;
+    }
+    updateUser({ name, email, lastName, location });
+  };
+
+  return (
+    <DashboardFormContainer>
+      <form className='form' onSubmit={handleSubmit}>
+        <h3>profile</h3>
+        {showAlert && <Alert />}
+
+        {/* name */}
+        <div className='form-center'>
+          <FormRow
+            type='text'
+            name='name'
+            value={name}
+            handleChange={(e) => setName(e.target.value)}
+          />
+          <FormRow
+            labelText='last name'
+            type='text'
+            name='lastName'
+            value={lastName}
+            handleChange={(e) => setLastName(e.target.value)}
+          />
+          <FormRow
+            type='email'
+            name='email'
+            value={email}
+            handleChange={(e) => setEmail(e.target.value)}
+          />
+          <FormRow
+            type='text'
+            name='location'
+            value={location}
+            handleChange={(e) => setLocation(e.target.value)}
+          />
+          <button className='btn btn-block' type='submit' disabled={isLoading}>
+            {isLoading ? "Please wait ..." : "Save changes"}
+          </button>
+        </div>
+      </form>
+    </DashboardFormContainer>
+  );
+};
+
+export default Profile;
+```
+
+#### Bearer Token - Manual Approach
+
+```js
+appContext.js;
+
+const updateUser = async (currentUser) => {
+  try {
+    // manual approach
+    const { data } = await axios.patch("/api/v1/auth/update_user".currentUser, {
+      headers: {
+        Authorization: `Bearer ${state.token}`,
+      },
+    });
+    console.log(data);
+  } catch (error) {
+    console.log(error.response);
+  }
+};
+```
+
+#### Axios - Global Setup
+
+```js
+appContext.js;
+
+axios.defaults.headers.common["Authorization"] = `Bearer ${state.token}`;
+```
+
+#### Axios - Custom Instance
+
+```js
+appContext.js;
+
+const authFetch = axios.create({
+  baseURL: "/api/v1",
+  headers: {
+    Authorization: `Bearer ${state.token}`,
+  },
+});
+
+const updateUser = async (currentUser) => {
+  try {
+    const { data } = await authFetch.patch("/auth/updateUser", currentUser);
+  } catch (error) {
+    console.log(error.response);
+  }
+};
+```
+
+#### Axios - Interceptors
+
+- will use instance, but can use axios instead
+
+```js
+appContext.js;
+
+// response interceptor
+const authFetch = axios.create({
+  baseURL: "/api/v1",
+});
+
+authFetch.interceptors.request.use(
+  (config) => {
+    config.headers.common["Authorization"] = `Bearer: ${state.token}`;
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+authFetch.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response.status === 401) logoutUser();
+    return Promise.reject(error);
+  }
+);
+```
+
+#### Update User
+
+```js
+actions.types.js;
+export const ActionTypes = {
+  DISPLAY_ALERT: "SHOW_ALERT",
+  CLEAR_ALERT: "CLEAR_ALERT",
+  SETUP_USER_START: "SETUP_USER_START",
+  SETUP_USER_SUCCESS: "SETUP_USER_SUCCESS",
+  SETUP_USER_ERROR: "SETUP_USER_ERROR",
+  TOGGLE_SIDEBAR: "TOGGLE_SIDEBAR",
+  LOGOUT_USER: "LOGOUT_USER",
+  UPDATE_USER_BEGIN: "UPDATE_USER_BEGIN",
+  UPDATE_USER_SUCCESS: "UPDATE_USER_SUCCESS",
+  UPDATE_USER_ERROR: "UPDATE_USER_ERROR",
+};
+```
+
+```js
+appContext.js;
+
+const updateUser = async (currentUser) => {
+  dispatch({ type: UPDATE_USER_BEGIN });
+  try {
+    const { data } = await authFetch.patch("/auth/updateUser", currentUser);
+
+    // no token
+    const { user, location, token } = data;
+
+    dispatch({
+      type: UPDATE_USER_SUCCESS,
+      payload: { user, location, token },
+    });
+
+    addUserToLocalStorage({ user, location, token });
+  } catch (error) {
+    dispatch({
+      type: UPDATE_USER_ERROR,
+      payload: { msg: error.response.data.msg },
+    });
+  }
+  clearAlert();
+};
+```
+
+```js
+reducer.js
+const reducer = (state, action) => {
+  switch (action.type) {
+    // other cases previously implemented
+    // .......
+    case ActionTypes.UPDATE_USER_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case ActionTypes.UPDATE_USER_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        token: action.payload.token,
+        user: action.payload.user,
+        userLocation: action.payload.location,
+        jobLocation: action.payload.location,
+        showAlert: true,
+        alertType: "success",
+        alertText: "User Profile Updated",
+      };
+    case ActionTypes.UPDATE_USER_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
+```
+
 #### TO-DO
 
 #### Error Boundary
@@ -2238,6 +2601,10 @@ const auth = async (req, res, next) => {
 #### Spinner
 
 - create HOC Spinner for loading
+
+```
+
+```
 
 ```
 

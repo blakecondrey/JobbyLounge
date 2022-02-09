@@ -57,8 +57,32 @@ const login = async (req, res) => {
   // set status to json excluding undefined password
   res.status(StatusCodes.OK).json({ user, token, location: user.location });
 };
+
 const updateUser = async (req, res) => {
-  res.send("Update User");
+  const { email, name, lastName, location } = req.body;
+  if (!email || !name || !lastName || !location) {
+    throw new BadRequestError("Please provide all values.");
+  }
+
+  const user = await User.findOne({ _id: req.user.userId });
+  console.log(req.user);
+
+  user.email = email;
+  user.name = name;
+  user.lastName = lastName;
+  user.location = location;
+
+  // await User.findOneAndUpdate would avoid the errors, however, this
+  // is to showcase potential errors that could occur with password hashing
+  // and salting as it currently contains { password: { select: false} }
+  await user.save();
+
+  const token = user.createJWT();
+  res.status(StatusCodes.OK).json({
+    user,
+    token,
+    location: user.location,
+  });
 };
 
 export { register, login, updateUser };

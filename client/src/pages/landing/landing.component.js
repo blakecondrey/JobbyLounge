@@ -1,14 +1,14 @@
 import main from "../../assets/images/main.svg";
-import { ReactComponent as Logo } from "../../assets/images/logo.svg";
+// import { ReactComponent as Logo } from "../../assets/images/logo.svg";
 import { Wrapper } from "./landing.styles";
 import { Link } from "react-router-dom";
 
 const LandingPage = () => {
   return (
     <Wrapper>
-      <nav>
+      {/* <nav>
         <Logo />
-      </nav>
+      </nav> */}
       <div className='container page'>
         {/* info */}
         <div className='info'>

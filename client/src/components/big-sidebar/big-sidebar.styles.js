@@ -27,7 +27,7 @@ const BigSidebarContainer = styled.aside`
       padding-left: 2.5rem;
     }
     .nav-links {
-      padding-top: 2rem;
+      padding-top: 6rem;
       display: flex;
       flex-direction: column;
     }

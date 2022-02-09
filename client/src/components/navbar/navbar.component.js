@@ -4,7 +4,7 @@ import { useAppContext } from "../../context/appContext";
 
 import NavbarContainer from "./navbar.styles";
 import { FaAlignLeft, FaUserCircle, FaCaretDown } from "react-icons/fa";
-import Logo from "../logo/logo.component";
+// import Logo from "../logo/logo.component";
 
 const Navbar = () => {
   const { user, logoutUser, toggleSidebar } = useAppContext();
@@ -17,7 +17,7 @@ const Navbar = () => {
           <FaAlignLeft />
         </button>
         <div>
-          <Logo />
+          {/* <Logo /> */}
           <h3 className='logo-text'>dashboard</h3>
         </div>
         <div className='btn-container'>
