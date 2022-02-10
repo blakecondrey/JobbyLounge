@@ -2592,6 +2592,101 @@ const reducer = (state, action) => {
       };
 ```
 
+#### 401 Error - Logout User
+
+```js
+appContext.js;
+// response interceptor
+authFetch.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response.status === 401) {
+      logoutUser();
+    }
+    return Promise.reject(error);
+  }
+);
+
+const updateUser = async (currentUser) => {
+  dispatch({ type: ActionTypes.UPDATE_USER_BEGIN });
+  try {
+    const { data } = await authFetch.patch("/auth/update_user", currentUser);
+
+    const { user, location, token } = data;
+
+    dispatch({
+      type: ActionTypes.UPDATE_USER_SUCCESS,
+      payload: { user, location, token },
+    });
+
+    addUserToLocalStorage({ user, location, token });
+  } catch (error) {
+    // console.log(error.response);
+    if (error.response.status !== 401) {
+      dispatch({
+        type: ActionTypes.UPDATE_USER_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+  }
+  clearAlert();
+};
+```
+
+- Job Model
+- in <b>models</b> folder
+
+```sh
+touch Job.js
+```
+
+```js
+Job.js;
+
+import mongoose from "mongoose";
+
+const JobSchema = new mongoose.Schema(
+  {
+    company: {
+      type: String,
+      required: [true, "Please provide company name"],
+      maxlength: 50,
+    },
+    position: {
+      type: String,
+      required: [true, "Please provide position"],
+      maxlength: 100,
+    },
+    status: {
+      type: String,
+      enum: ["interview", "declined", "pending"],
+      default: "pending",
+    },
+
+    jobType: {
+      type: String,
+      enum: ["full-time", "part-time", "remote", "internship"],
+      default: "full-time",
+    },
+    jobLocation: {
+      type: String,
+      default: "my city",
+      required: true,
+    },
+    createdBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: [true, "Please provide user"],
+    },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model("Job", JobSchema);
+```
+
 #### TO-DO
 
 #### Error Boundary
