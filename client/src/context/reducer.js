@@ -80,6 +80,46 @@ const reducer = (state, action) => {
         alertType: "danger",
         alertText: action.payload.msg,
       };
+    case ActionTypes.HANDLE_CHANGE:
+      return {
+        ...state,
+        [action.payload.name]: action.payload.value,
+      };
+    case ActionTypes.CLEAR_VALUES:
+      const clearValuesState = {
+        isEditing: false,
+        editJobId: "",
+        position: "",
+        company: "",
+        jobLocation: state.userLocation,
+        jobType: "full-time",
+        status: "pending",
+      };
+      return {
+        ...state,
+        ...clearValuesState,
+      };
+    case ActionTypes.CREATE_JOB_BEGIN:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case ActionTypes.CREATE_JOB_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "success",
+        alertText: "New Job Added",
+      };
+    case ActionTypes.CREATE_JOB_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        showAlert: true,
+        alertType: "danger",
+        alertText: action.payload.msg,
+      };
     default:
       return new Error(`No Such Action :${action.type}`);
   }

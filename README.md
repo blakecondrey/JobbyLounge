@@ -2676,6 +2676,7 @@ const JobSchema = new mongoose.Schema(
       required: true,
     },
     createdBy: {
+      // every job created by unique user
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: [true, "Please provide user"],
@@ -2708,6 +2709,607 @@ const createJob = async (req, res) => {
   const job = await Job.create(req.body);
   res.status(StatusCodes.CREATED).json({ job });
 };
+```
+
+#### Job State Values
+
+```js
+appContext.js;
+const initialState = {
+  isLoading: false,
+  showAlert: false,
+  alertText: "",
+  alertType: "",
+  user: user ? JSON.parse(user) : null,
+  token: token,
+  userLocation: userLocation || "",
+  showSidebar: false,
+  isEditing: false,
+  editJobId: "",
+  positon: "",
+  jobLocation: userLocation || "",
+  jobTypeOptions: ["full-time", "part-time", "remote", "internship"],
+  statusOptions: ["pending", "interview", "declined"],
+  status: "pending",
+};
+```
+
+#### AddJob Page - Setup
+
+```js
+add - job.component.js;
+import React from "react";
+import { useAppContext } from "../../context/appContext";
+import FormRow from "../../components/form-row/formrow.component";
+import Alert from "../../components/alert/alert.component";
+import DashboardFormContainer from "./dashboard-form.styles";
+
+const AddJob = () => {
+  const {
+    isEditing,
+    showAlert,
+    displayAlert,
+    position,
+    company,
+    jobLocation,
+    jobType,
+    jobTypeOptions,
+    status,
+    statusOptions,
+  } = useAppContext();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!position || !company || !jobLocation) {
+      displayAlert();
+      return;
+    }
+    console.log("create job");
+  };
+
+  const handleJobInput = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    console.log(`${name}:${value}`);
+  };
+
+  return (
+    <DashboardFormContainer>
+      <form className='form'>
+        <h3>{isEditing ? "edit job" : "add job"}</h3>
+        {showAlert && <Alert />}
+
+        <div className='form-center'>
+          {/* position */}
+          <FormRow
+            type='text'
+            name='position'
+            value={position}
+            handleChange={handleJobInput}
+          />
+          {/* company */}
+          <FormRow
+            type='text'
+            name='company'
+            value={company}
+            handleChange={handleJobInput}
+          />
+          {/* location */}
+          <FormRow
+            type='text'
+            labelText='job location'
+            name='jobLocation'
+            value={jobLocation}
+            handleChange={handleJobInput}
+          />
+          {/* job type */}
+          {/* job location */}
+          <div className='btn-container'>
+            <button
+              className='btn btn-block submit-btn'
+              type='submit'
+              onClick={handleSubmit}
+            >
+              submit
+            </button>
+          </div>
+        </div>
+      </form>
+    </DashboardFormContainer>
+  );
+};
+
+export default AddJob;
+```
+
+#### Select Input
+
+```js
+add-job.component.js
+return (
+{/* job type */}
+<div className='form-row'>
+  <label htmlFor='jobType' className='form-label'>
+    job type
+  </label>
+  <select
+    name='jobType'
+    value={jobType}
+    onChange={handleJobInput}
+    className='form-select'
+  >
+    {jobTypeOptions.map((optionItem, index) => {
+      return (
+        <option key={index} value={optionItem}>
+          {optionItem.toUpperCase().replace("-", " ")}
+        </option>
+      );
+    })}
+  </select>
+</div>
+);
+```
+
+- form row selector immediately appears to be implememtned as a reusable component
+
+#### FormRowSelect
+
+- create <b>form-row-select</b> in <b>components</b> folder
+- create <b>form-row-select.component.js</b>
+- setup import/export
+  form - row - select.component.js;
+
+```js
+import React from "react";
+
+const FormRowSelect = ({ labelText, name, value, handleChange, list }) => {
+  const titleCase = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
+  return (
+    <div className='form-row'>
+      <label htmlFor={name} className='form-label'>
+        {labelText || name}
+      </label>
+      <select
+        name={name}
+        value={value}
+        onChange={handleChange}
+        className='form-select'
+      >
+        {list.map((item, index) => {
+          return (
+            <option key={index} value={item}>
+              {titleCase(item).replace("-", " ")}
+            </option>
+          );
+        })}
+      </select>
+    </div>
+  );
+};
+
+export default FormRowSelect;
+```
+
+```js
+add - job.component.js;
+
+import React from "react";
+import { useAppContext } from "../../context/appContext";
+import FormRow from "../../components/form-row/formrow.component";
+import Alert from "../../components/alert/alert.component";
+import DashboardFormContainer from "./dashboard-form.styles";
+import FormRowSelect from "../../components/form-row-select/form-row-select.component";
+
+const AddJob = () => {
+  const {
+    isEditing,
+    showAlert,
+    displayAlert,
+    position,
+    company,
+    jobLocation,
+    jobType,
+    jobTypeOptions,
+    status,
+    statusOptions,
+  } = useAppContext();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!position || !company || !jobLocation) {
+      displayAlert();
+      return;
+    }
+    console.log("create job");
+  };
+
+  const handleJobInput = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    console.log(`${name}:${value}`);
+  };
+
+  return (
+    <DashboardFormContainer>
+      <form className='form'>
+        <h3>{isEditing ? "edit job" : "add job"}</h3>
+        {showAlert && <Alert />}
+
+        <div className='form-center'>
+          {/* position */}
+          <FormRow
+            type='text'
+            name='position'
+            value={position}
+            handleChange={handleJobInput}
+          />
+          {/* company */}
+          <FormRow
+            type='text'
+            name='company'
+            value={company}
+            handleChange={handleJobInput}
+          />
+          {/* location */}
+          <FormRow
+            type='text'
+            labelText='job location'
+            name='jobLocation'
+            value={jobLocation}
+            handleChange={handleJobInput}
+          />
+          {/* job status */}
+          <FormRowSelect
+            name='status'
+            value={status}
+            handleChange={handleJobInput}
+            list={statusOptions}
+          />
+          {/* job type */}
+          <FormRowSelect
+            labelText='type'
+            name='jobType'
+            value={jobType}
+            handleChange={handleJobInput}
+            list={jobTypeOptions}
+          />
+          <div className='btn-container'>
+            <button
+              className='btn btn-block submit-btn'
+              type='submit'
+              onClick={handleSubmit}
+            >
+              submit
+            </button>
+          </div>
+        </div>
+      </form>
+    </DashboardFormContainer>
+  );
+};
+
+export default AddJob;
+```
+
+#### Change State Values With Handle Change
+
+- [JS Nuggets Dynamic Object Keys](https://youtu.be/_qxCYtWm0tw)
+
+```js
+actions.types.js;
+
+export const ActionTypes = {
+  DISPLAY_ALERT: "SHOW_ALERT",
+  CLEAR_ALERT: "CLEAR_ALERT",
+  SETUP_USER_START: "SETUP_USER_START",
+  SETUP_USER_SUCCESS: "SETUP_USER_SUCCESS",
+  SETUP_USER_ERROR: "SETUP_USER_ERROR",
+  TOGGLE_SIDEBAR: "TOGGLE_SIDEBAR",
+  LOGOUT_USER: "LOGOUT_USER",
+  UPDATE_USER_BEGIN: "UPDATE_USER_BEGIN",
+  UPDATE_USER_SUCCESS: "UPDATE_USER_SUCCESS",
+  UPDATE_USER_ERROR: "UPDATE_USER_ERROR",
+  HANDLE_CHANGE: "HANDLE_CHANGE",
+};
+```
+
+```js
+appContext.js;
+
+const handleChange = ({ name, value }) => {
+  dispatch({
+    type: ActionTypes.HANDLE_CHANGE,
+    payload: { name, value },
+  });
+};
+
+return (
+  <AppContext.Provider
+    value={{
+      ...state,
+      displayAlert,
+      setupUser,
+      toggleSidebar,
+      updateUser,
+      logoutUser,
+      handleChange,
+    }}
+  >
+    {children}
+  </AppContext.Provider>
+);
+```
+
+```js
+reducer.js;
+switch (action.type) {
+  // .. all other cases ...
+  case ActionTypes.HANDLE_CHANGE:
+    return {
+      ...state,
+      [action.payload.name]: action.payload.value,
+    };
+}
+```
+
+```js
+add - job.component.js;
+// insert handleChange intp useAppContext
+const AddJob = () => {
+  const {
+    isEditing,
+    showAlert,
+    displayAlert,
+    position,
+    company,
+    jobLocation,
+    jobType,
+    jobTypeOptions,
+    status,
+    statusOptions,
+    handleChange,
+  } = useAppContext();
+
+  // reomve console log anmd replace with handleChange call
+
+  const handleJobInput = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    handleChange({ name, value });
+  };
+};
+```
+
+#### Clear Values
+
+```js
+actions.types.js;
+
+export const ActionTypes = {
+  DISPLAY_ALERT: "SHOW_ALERT",
+  CLEAR_ALERT: "CLEAR_ALERT",
+  SETUP_USER_START: "SETUP_USER_START",
+  SETUP_USER_SUCCESS: "SETUP_USER_SUCCESS",
+  SETUP_USER_ERROR: "SETUP_USER_ERROR",
+  TOGGLE_SIDEBAR: "TOGGLE_SIDEBAR",
+  LOGOUT_USER: "LOGOUT_USER",
+  UPDATE_USER_BEGIN: "UPDATE_USER_BEGIN",
+  UPDATE_USER_SUCCESS: "UPDATE_USER_SUCCESS",
+  UPDATE_USER_ERROR: "UPDATE_USER_ERROR",
+  HANDLE_CHANGE: "HANDLE_CHANGE",
+  CLEAR_VALUES: "CLEAR_VALUES",
+};
+```
+
+```js
+appContext.js;
+
+const clearValues = () => {
+  dispatch({
+    type: ActionTypes.CLEAR_VALUES,
+  });
+};
+return (
+  <AppContext.Provider
+    value={{
+      ...state,
+      displayAlert,
+      setupUser,
+      toggleSidebar,
+      updateUser,
+      logoutUser,
+      handleChange,
+      clearValues, // add clear values to provider values
+    }}
+  >
+    {children}
+  </AppContext.Provider>
+);
+```
+
+```js
+reducer.js;
+switch (action.type) {
+  // ...all other cases...
+  case ActionTypes.CLEAR_VALUES:
+    const clearValuesState = {
+      isEditing: false,
+      editJobId: "",
+      position: "",
+      company: "",
+      jobLocation: state.userLocation,
+      jobType: "full-time",
+      status: "pending",
+    };
+    return {
+      ...state,
+      ...clearValuesState,
+    };
+}
+```
+
+```js
+AddJob.component.js;
+
+const AddJob = () => {
+  const {
+    isEditing,
+    showAlert,
+    displayAlert,
+    position,
+    company,
+    jobLocation,
+    jobType,
+    jobTypeOptions,
+    status,
+    statusOptions,
+    handleChange,
+    // add clearValues
+    clearValues
+  } = useAppContext();
+
+return (
+  <div className='btn-container'>
+    {/* submit button */}
+
+    <button
+      className='btn btn-block clear-btn'
+      onClick={(e) => {
+        e.preventDefault();
+        clearValues();
+      }}
+    >
+      clear
+    </button>
+  </div>
+);
+```
+
+#### Create Job
+
+```js
+actions.types.js;
+export const ActionTypes = {
+  DISPLAY_ALERT: "SHOW_ALERT",
+  CLEAR_ALERT: "CLEAR_ALERT",
+  SETUP_USER_START: "SETUP_USER_START",
+  SETUP_USER_SUCCESS: "SETUP_USER_SUCCESS",
+  SETUP_USER_ERROR: "SETUP_USER_ERROR",
+  TOGGLE_SIDEBAR: "TOGGLE_SIDEBAR",
+  LOGOUT_USER: "LOGOUT_USER",
+  UPDATE_USER_BEGIN: "UPDATE_USER_BEGIN",
+  UPDATE_USER_SUCCESS: "UPDATE_USER_SUCCESS",
+  UPDATE_USER_ERROR: "UPDATE_USER_ERROR",
+  HANDLE_CHANGE: "HANDLE_CHANGE",
+  CLEAR_VALUES: "CLEAR_VALUES",
+  CREATE_JOB_BEGIN: "CREATE_JOB_BEGIN",
+  CREATE_JOB_SUCCESS: "CREATE_JOB_SUCCESS",
+  CREATE_JOB_ERROR: "CREATE_JOB_ERROR",
+};
+```
+
+```js
+appContext.js;
+
+const createJob = async () => {
+  dispatch({
+    type: ActionTypes.CREATE_JOB_BEGIN,
+  });
+  try {
+    const { position, company, jobLocation, jobType, status } = state;
+
+    await authFetch.post("/jobs", {
+      company,
+      position,
+      jobLocation,
+      jobType,
+      status,
+    });
+    dispatch({
+      type: ActionTypes.CREATE_JOB_SUCCESS,
+    });
+    dispatch({
+      type: ActionTypes.CLEAR_VALUES,
+    });
+  } catch (error) {
+    if (error.response.status === 401) return;
+    dispatch({
+      type: ActionTypes.CREATE_JOB_ERROR,
+      payload: { msg: error.response.data.msg },
+    });
+    clearAlert();
+  }
+};
+```
+
+```js
+AddJob.js;
+
+const AddJob = () => {
+  const {
+    isEditing,
+    showAlert,
+    displayAlert,
+    position,
+    company,
+    jobLocation,
+    jobType,
+    jobTypeOptions,
+    status,
+    statusOptions,
+    handleChange,
+    clearValues,
+    // add createJob to useAppContext
+    createJob
+  } = useAppContext();
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+  // while testing
+
+  // if (!position || !company || !jobLocation) {
+  //   displayAlert()
+  //   return
+  // }
+  if (isEditing) {
+    // eventually editJob()
+    return;
+  }
+  createJob();
+};
+```
+
+```js
+reducer.js;
+switch (action.type) {
+  // ...all other cases...
+  case ActionTypes.CREATE_JOB_BEGIN:
+    return {
+      ...state,
+      isLoading: true,
+    };
+  case ActionTypes.CREATE_JOB_SUCCESS:
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "success",
+      alertText: "New Job Added",
+    };
+  case ActionTypes.CREATE_JOB_ERROR:
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: action.payload.msg,
+    };
+}
 ```
 
 #### TO-DO
